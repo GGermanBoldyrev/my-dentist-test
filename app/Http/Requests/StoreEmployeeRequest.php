@@ -24,8 +24,18 @@ class StoreEmployeeRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'statusId' => 'required|integer|exists:employee_statuses,id',
+            'email' => 'required|email|max:255|unique:employees,email',
+            'statusId' => 'nullable|integer|exists:employee_statuses,id',
         ];
+    }
+
+    /**
+     * Get data to be validated from the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function validationData(): array
+    {
+        return $this->post();
     }
 }

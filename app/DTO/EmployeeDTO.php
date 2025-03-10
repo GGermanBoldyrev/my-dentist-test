@@ -2,12 +2,13 @@
 
 namespace App\DTO;
 
+
 readonly class EmployeeDTO
 {
     public function __construct(
         public string $name,
         public string $email,
-        public int $statusId
+        public ?int $statusId
     ) {}
 
     public function mapToDb(): array
