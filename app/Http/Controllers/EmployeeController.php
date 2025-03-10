@@ -3,14 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\DTO\EmployeeDTO;
+use App\Http\Requests\EmployeeIdRequest;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Services\EmployeeService;
+use App\Services\ValidationService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class EmployeeController extends Controller
 {
-    public function __construct(private readonly EmployeeService $service) {}
+    public function __construct(
+        private readonly EmployeeService $service,
+        private readonly ValidationService $validationService,
+    ) {}
 
     public function index(): JsonResponse
     {
@@ -18,9 +25,15 @@ class EmployeeController extends Controller
         return response()->json($employees);
     }
 
-    public function show(int $id): JsonResponse
+    public function show($employeeId): JsonResponse
     {
-        $employee = $this->service->getEmployeeById($id);
+        try {
+            $employeeId = $this->validationService->validateEmployeeId($employeeId);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
+
+        $employee = $this->service->getEmployeeById($employeeId);
 
         if (!$employee) {
             return response()->json(['message' => 'Employee not found'], 404);
